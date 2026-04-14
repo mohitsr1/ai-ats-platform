@@ -1,0 +1,14 @@
+import './config.js';
+import { checkResume } from '../atsService.js';
+
+(async () => {
+  const sampleResume = `John Doe\nSoftware Engineer with 5 years of experience in Node.js, Express, and React. Worked on REST APIs, microservices, and cloud deployments (AWS).`;
+  const sampleJD = `Seeking a Software Engineer with experience in Node.js, Express, REST APIs, AWS, and microservices.`;
+
+  try {
+    const result = await checkResume(sampleResume, sampleJD);
+    console.log('checkResume result:\n', result);
+  } catch (err) {
+    console.error('checkResume test failed:', err.message);
+  }
+})();

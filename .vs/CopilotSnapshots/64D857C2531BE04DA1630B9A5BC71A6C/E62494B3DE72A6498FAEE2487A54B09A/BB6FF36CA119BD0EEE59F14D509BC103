@@ -1,0 +1,59 @@
+﻿import "./config.js"; // 👈 MUST BE FIRST
+
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
+  defaultHeaders: {
+    "HTTP-Referer": "http://localhost:3000",
+    "X-Title": "AI ATS Platform",
+  },
+});
+
+// 👤 Job Seeker Mode
+export async function checkResume(resume, jd) {
+  const prompt = `
+You are an ATS system.
+
+Return STRICT JSON only:
+{
+  "score": number,
+  "missing_keywords": [],
+  "strengths": [],
+  "suggestions": []
+}
+
+Resume:
+${resume}
+
+Job Description:
+${jd}
+`;
+
+  const response = await client.chat.completions.create({
+    model: "openchat/openchat-3.5",
+    messages: [
+      { role: "system", content: "You are an ATS expert." },
+      { role: "user", content: prompt },
+    ],
+  });
+
+  return response.choices[0].message.content;
+}
+
+// 🏢 Recruiter Mode
+export async function rankCandidates(jd, resumes) {
+  const results = [];
+
+  for (let i = 0; i < resumes.length; i++) {
+    const result = await checkResume(resumes[i], jd);
+
+    results.push({
+      candidate: i + 1,
+      analysis: result,
+    });
+  }
+
+  return results;
+}
